@@ -3,6 +3,7 @@
 import requests
 import json
 import copy
+import pickle
 import sys
 from argparse import ArgumentParser
 from collections import namedtuple
@@ -51,12 +52,18 @@ def query_administrative_areas(position):
     :param position: namedtuple containg latitude and longitude
     :return: areas
     """
+    if position in cache['point']:
+        return cache['point'][position]
+
     baseurl = 'http://global.mapit.mysociety.org'
     endpoint = '/point/{SRID}/{lng},{lat}'.format(SRID=4326, lat=position.lat, lng=position.lng)
 
     response = requests.get(urljoin(baseurl, endpoint))
+    document = response.json()
 
-    return response.json()
+    cache['point'][position] = document
+
+    return document
 
 
 def query_area_geojson(area_id):
@@ -65,12 +72,18 @@ def query_area_geojson(area_id):
     :param area_id: key
     :return: geojson
     """
+    if area_id in cache['area']:
+        return cache['area'][area_id]
+
     baseurl = 'http://global.mapit.mysociety.org'
     endpoint = '/area/{id}.geojson'.format(id=area_id)
 
     response = requests.get(urljoin(baseurl, endpoint))
+    document = response.json()
 
-    return response.json()
+    cache['area'][area_id] = document
+
+    return document
 
 
 def get_municipal_area(areas):
@@ -79,6 +92,7 @@ def get_municipal_area(areas):
     :param areas: candidate administrative areas
     :return most local area key
     """
+
     def is_municipal(area):
         k, v = area
         return v['type'] in ('O06', 'O07', 'O08')
@@ -139,6 +153,13 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    try:
+        with open('app.cache', 'rb') as handle:
+            cache = pickle.load(handle)
+    except FileNotFoundError:
+        cache = {'point': {}, 'area': {}}
+
     main(args.url, args.format)
 
-
+    with open('app.cache', 'wb+') as handle:
+        pickle.dump(cache, handle)
