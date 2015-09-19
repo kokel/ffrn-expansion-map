@@ -79,10 +79,10 @@ def get_municipal_area(areas):
     :param areas: candidate administrative areas
     :return most local area key
     """
-    def is_municipal(area_type):
-        return area_type in 'O06', 'O07', 'O08'
+    def is_municipal(area):
+        return areas[area]['type'] in ['O06', 'O07', 'O08']
 
-    return max(filter(is_municipal, areas), key=lambda i: int(areas[i]['type'][1:]))
+    return max(filter(is_municipal, areas), key=lambda i: areas[i]['type'][1:])
 
 
 def main(url, format):
