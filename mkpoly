@@ -80,9 +80,14 @@ def get_municipal_area(areas):
     :return most local area key
     """
     def is_municipal(area):
-        return areas[area]['type'] in ['O06', 'O07', 'O08']
+        k, v = area
+        return v['type'] in ('O06', 'O07', 'O08')
 
-    return max(filter(is_municipal, areas), key=lambda i: areas[i]['type'][1:])
+    def get_type(area):
+        k, v = area
+        return int(v['type'][1:])
+
+    return max(filter(is_municipal, areas.items()), key=get_type)[1]
 
 
 def main(url, format):
@@ -96,7 +101,7 @@ def main(url, format):
 
         # find the most local administrative area
         try:
-            local = areas[get_municipal_area(areas)]
+            local = get_municipal_area(areas)
 
             if local['id'] in distribution:
                 distribution[local['id']]['count'] += 1
