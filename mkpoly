@@ -95,17 +95,14 @@ def main(url, format):
         areas = query_administrative_areas(position)
 
         # find the most local administrative area
-        local = areas[get_municipal_area(areas)]
+        try:
+            local = areas[get_municipal_area(areas)]
 
-        area_type = int(local['type'][1:])
-        # we only care about municipal borders
-        # see http://wiki.openstreetmap.org/wiki/DE:Grenze
-        if 6 <= area_type <= 8:
             if local['id'] in distribution:
                 distribution[local['id']]['count'] += 1
             else:
                 distribution[local['id']] = {'name': local['name'], 'count': 1}
-        else:
+        except KeyError:
             print('No appropriate administrative layer found for {}: {}'.format(node, position), file=sys.stderr)
 
     areas = []
