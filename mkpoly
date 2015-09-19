@@ -67,7 +67,6 @@ def query_area_geojson(area_id):
     """
     baseurl = 'http://global.mapit.mysociety.org'
     endpoint = '/area/{id}.geojson'.format(id=area_id)
-    print(urljoin(baseurl, endpoint))
 
     response = requests.get(urljoin(baseurl, endpoint))
 
