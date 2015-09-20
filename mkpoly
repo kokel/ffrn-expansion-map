@@ -156,10 +156,11 @@ if __name__ == '__main__':
     try:
         with open('app.cache', 'rb') as handle:
             cache = pickle.load(handle)
-    except FileNotFoundError:
+    except FileNotFoundError, IOError:
         cache = {'point': {}, 'area': {}}
 
     main(args.url, args.format)
 
     with open('app.cache', 'wb+') as handle:
         pickle.dump(cache, handle)
+
