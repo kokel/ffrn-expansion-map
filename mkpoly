@@ -153,10 +153,19 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    '''
+    We need this to maintian compatibility with python 2.7
+    because python 2.7 don't know the FileNotFoundError
+    '''
+    try:
+        FileNotFoundError
+    except NameError:
+        FileNotFoundError = IOError
+
     try:
         with open('app.cache', 'rb') as handle:
             cache = pickle.load(handle)
-    except FileNotFoundError, IOError:
+    except FileNotFoundError:
         cache = {'point': {}, 'area': {}}
 
     main(args.url, args.format)
