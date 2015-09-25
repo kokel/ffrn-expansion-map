@@ -101,7 +101,13 @@ def get_municipal_area(areas):
         k, v = area
         return int(v['type'][1:])
 
-    return max(filter(is_municipal, areas.items()), key=get_type)[1]
+    filtered_list = [area for area in areas.items() if is_municipal(area)]
+
+    if filtered_list:
+        return max(filtered_list, key=get_type)[1]
+    else:
+       print("Could not find a municipal area for the location!")
+       return None
 
 
 def main(url, format):
@@ -116,6 +122,9 @@ def main(url, format):
         # find the most local administrative area
         try:
             local = get_municipal_area(areas)
+
+            if not local:
+                raise KeyError("No valid areas found.")
 
             if local['id'] in distribution:
                 distribution[local['id']]['count'] += 1
