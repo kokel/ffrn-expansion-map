@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-import requests
 import json
 import copy
 import pickle
 import sys
 from argparse import ArgumentParser
 from collections import namedtuple
+
+import requests
 from requests.compat import urljoin
 
 formats = 'nodelist', 'ffmap'
@@ -106,13 +107,13 @@ def get_municipal_area(areas):
     if filtered_list:
         return max(filtered_list, key=get_type)[1]
     else:
-       print("Could not find a municipal area for the location!")
-       return None
+        print('Could not find a municipal area for the location!', file=sys.stderr)
+        return None
 
 
-def main(url, format):
+def main(url, fmt):
     # get node information
-    nodes = fetch(url, format)
+    nodes = fetch(url, fmt)
 
     distribution = {}
     for node, position in nodes.items():
@@ -130,7 +131,7 @@ def main(url, format):
                 distribution[local['id']]['count'] += 1
             else:
                 distribution[local['id']] = {'name': local['name'], 'count': 1}
-        except KeyError:
+        except TypeError:
             print('No appropriate administrative layer found for {}: {}'.format(node, position), file=sys.stderr)
 
     areas = []
@@ -162,10 +163,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    '''
-    We need this to maintian compatibility with python 2.7
-    because python 2.7 don't know the FileNotFoundError
-    '''
+    # ensure FileNotFoundError is defined for python2.7 compatibility
     try:
         FileNotFoundError
     except NameError:
@@ -181,4 +179,3 @@ if __name__ == '__main__':
 
     with open('app.cache', 'wb+') as handle:
         pickle.dump(cache, handle)
-
